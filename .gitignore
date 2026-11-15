@@ -1,0 +1,24 @@
+# Original data, third-party model repositories, checkpoints and generated records
+/dataset/
+/external/
+/results/
+/robustness/
+*.pt
+*.pth
+*.ckpt
+*.lock
+*.tmp
+*.zip
+*.log
+
+# Python / local environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Editor / operating system files
+.DS_Store
+.idea/
+.vscode/
