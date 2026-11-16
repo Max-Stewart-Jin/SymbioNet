@@ -1,0 +1,93 @@
+# SymbioNet default settings. Per-dataset values are in configs/datasets.yaml; on the command line use
+# --set section.key=value to override and --sweep section.key=v1,v2 to try several values.
+
+data:
+  root: dataset            # folder with Trento/, Houston13/, MUUFL/ (the original .mat files)
+  split: geo               # geo = the 1 % split of Geo-DeltaSSM (splits/<dataset>_geodeltassm.npz) | random
+  split_ratio: 0.01        # random splits: ceil(split_ratio * class size) training pixels per class
+  split_seed: 0            # random splits: seed (the split is saved to split_dir and reused)
+  split_file: null         # path of any saved split (.npz) to use instead
+  split_dir: splits
+  hsi_norm: minmax         # minmax | zscore, per band, statistics over the whole image (minmax as Geo-DeltaSSM)
+  lidar_norm: minmax
+  pca: 0                   # 0 = all HSI bands (as Geo-DeltaSSM); k = the first k principal components
+  pca_scale: each          # each = every component standardised | first = all divided by the first one's std
+  patch: 11                # patch side (odd)
+  padding: zero            # zero (as Geo-DeltaSSM) | reflect, outside the image
+  augment: flip            # none | flip | dihedral (training patches only)
+  train_fraction: 1.0      # < 1: only this part of the training pixels of the split is used (per class, at least 1;
+                           #   run k draws its own part with seed + k); the test pixels are unchanged
+  pool_test: false         # the unlabeled pool (every valid pixel except the test pixels) also draws the test pixels:
+                           #   their inputs only, never their labels (the transductive setting)
+  pool_size: 0             # 0 = every pool pixel; N = a fixed random subset of N pool pixels (drawn with pool_seed)
+  pool_seed: 0
+
+model:
+  d: 64                    # token width
+  heads: 4
+  hidden: 128              # MLP width
+  depth: 2                 # symmetric fusion blocks in the encoder
+  decoder: null            # null = the base network; identity | transformer | mamba = SymbioNet
+  dec_depth: 2
+  d_state: 8               # Mamba state size
+  expand: 1                # Mamba expansion
+  mask_mode: complementary # independent | same | complementary
+  mask_ratio: 0.5          # masked share of the 2n (position, modality) slots
+  mask_split: dirichlet    # dirichlet (HSI share ~ U(0, 1)) | equal
+  mask_block: 1            # masking unit: 1 = single pixels, b = b x b blocks (b = patch: a whole modality)
+  rec_weighting: kendall   # kendall | balanced | none
+  rec_source: self         # self | cross: the pixel heads g_H, g_L read the tokens of their own modality, or of the
+                           #   other modality at the same position (the feature target is the same for both)
+  feat: true               # cross-path feature target
+  cons: false              # prediction consistency
+  cons_tau: 0.0
+  lam: 1.0                 # weight of L_rec
+  beta: 1.0                # weight of L_feat
+  gamma: 1.0               # weight of L_cons
+  stem: conv               # conv | spectral: HSI stem = spectral 1-D conv + two depthwise-separable 3x3 layers
+                           #   (receptive field 5 x 5 as conv; the LiDAR stem is the conv stem in both cases)
+  rel_bias: false          # learned relative position bias in every SFB, per head and (query, key) modality pair
+  readout: mean            # mean | attn: the classifier reads the centre tokens and the mean tokens, or a
+                           #   centre-guided attention pooling (equal to the mean at initialisation)
+  fusion: joint            # joint = the SFB | ablations of the fusion block: self (own modality only), to_hsi /
+                           #   to_lidar (one-way), shared (one set of projections), fixed (equal mix; see model.py)
+  fill: learned            # learned | mean: masked inputs are replaced by learned values, or by the band means of the
+                           #   image (fixed; the values that replace lost pixels in the robustness tests)
+  feat_head: linear        # linear | none: L_feat compares f_m(z~) or z~ itself with the clean tokens
+  gate: false              # false | true | known: gated completion, also at test time: z' = (1 - r) z + r f_m(z).
+                           #   true: the gate r is trained to detect the masked slots; known: r = 1 where the input
+                           #   equals the fill value (needs fill: mean). Both need decoder: identity, feat: true,
+                           #   feat_head: linear
+  mask_labeled: false      # the classification loss also on a masked copy of every labeled batch (the plain
+                           #   augmentation baseline; without the training branch it needs fill: mean)
+  pre_gate: false          # false | known | learned: reliability gate before the fusion blocks, also at test time.
+                           #   Every SFB multiplies the attention weight of a key by 1 - r, r = how likely the slot is
+                           #   lost: known = 1 where the input equals the fill value (needs fill: mean; no parameters),
+                           #   learned = estimated from the stem tokens, trained to detect the masked slots (needs a
+                           #   decoder and feat: true)
+  pre_gate_p: 1.0          # training: the pre-gate acts on a masked view with this probability (per sample); in the
+                           #   other masked views the lost slots are read as usual. At test time it always acts
+  band_mask: 0.0           # b > 0: every masked view also loses a share U(0, b) of the HSI bands (whole patch)
+  bn_masked: batch         # batch | running: the BatchNorm layers normalise the masked views with the statistics of
+                           #   their own batch, or with the running statistics as at test time
+
+training:
+  epochs: 500
+  batch_size: 32
+  optimizer: adam          # adam | adamw
+  lr: 0.001
+  weight_decay: 0.001
+  min_lr: 1.0e-6           # cosine annealing from lr to min_lr over the epochs
+  label_smoothing: 0.2
+  class_weight: inv_sqrt   # none | inv_sqrt (1 / sqrt(n_c)) | inv (1 / n_c)
+  pool_batch: 256          # unlabeled pool patches per step (SymbioNet only)
+  masked_weight: 1.0       # weight of the masked labeled copy in the loss (model.mask_labeled)
+
+eval:
+  every: 1                 # test every this many epochs; the best and the last epoch are reported
+  chunk: 1024              # test patches per forward pass (any value gives the same scores; 1024 fits 8 GB)
+  subset: 0                # > 0: test on a fixed random subset (quick checks only)
+
+runs: 5                    # runs per setting on the same split; run k uses seed + k
+seed: 0
+print_every: 50
