@@ -40,11 +40,29 @@ pip install -r requirements.txt
 No compiled extension is needed. The experiments of the paper were run on Windows with a laptop GPU (RTX 4060,
 8 GB); the unit tests also pass on Linux.
 
+**Recorded historical experiment environment:** Python **3.10.20**, PyTorch **2.1.0+cu118** (CUDA 11.8
+build), NumPy **1.26.4**, and SciPy **1.11.4** on an NVIDIA GeForce RTX 4060 Laptop GPU (8 GB).
+PyTorch and the GPU model are recorded in the original per-run JSON files; the Python, NumPy, and SciPy
+versions are recorded in the workstation's project environment notes. This is **not** a complete frozen
+environment or a guarantee of bit-for-bit reproducibility. See [Reproducibility](docs/REPRODUCIBILITY.md)
+for an optional reference-environment setup; `requirements.txt` retains broader compatibility bounds.
+
 ## Data
 
 The scenes are not part of this repository; they are obtained from their providers (see Acknowledgment;
 Houston2013 is distributed by the University of Houston under its terms of use). Put them in `dataset/` next to
-this file, or pass `--data-root`:
+this file, or pass `--data-root`.
+
+**Dataset sources and access:** These are source pages, not assurances that the downloadable files use the
+same `.mat` filenames or variable names as this repository.
+
+| Dataset | Source / access route | Notes |
+|---|---|---|
+| Houston2013 | [IEEE GRSS 2013 Data Fusion Contest](https://www.grss-ieee.org/community/technical-committees/2013-ieee-grss-data-fusion-contest/) and [University of Houston contest page](https://machinelearning.ee.uh.edu/2013-ieee-grss-data-fusion-contest/) | Official organizers' pages; follow the data-request instructions and terms of use before obtaining or using the HSI and LiDAR DSM. |
+| MUUFL Gulfport | [University of Florida GatorSense dataset](https://github.com/GatorSense/MUUFLGulfport) and [research group's data page](https://faculty.eng.ufl.edu/machine-learning/data-code/) | Official research-group distribution; check the scene and label files against the expected inputs below. |
+| Trento | [University of Trento Remote Sensing Laboratory](https://rslab.disi.unitn.it/) | The original provider is Prof. Lorenzo Bruzzone's laboratory. We did not verify an official direct download for this exact paired HSI–LiDAR benchmark. A [third-party public mirror](https://github.com/tyust-dayu/Trento) exists, but its provenance, usage rights, and file conventions should be checked with the provider; it is **not** an official release link. |
+
+The dataset folder/file conventions expected by our loader are:
 
 ```
 dataset/
