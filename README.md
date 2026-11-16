@@ -8,8 +8,8 @@ SymbioNet classifies every pixel of a co-registered hyperspectral image (HSI) an
 lost pixels, occluded blocks, lost HSI bands, or a missing modality.
 
 - **Gated symmetric fusion block (GSFB).** Each modality has its own projections, and its queries attend to the
-  tokens of both modalities. A gate without parameters finds the positions whose data are lost and removes them from
-  the attention keys. These positions keep their queries and are updated from the available positions of both
+  tokens of both modalities. A parameter-free gate identifies positions marked as lost by the configured fill rule and strongly suppresses
+  them as attention keys. These positions keep their queries and are updated from the available positions of both
   modalities.
 - **Masked labeled copies.** The classifier is also trained on masked copies of the labeled patches.
 - **Masked mutual completion (M2C).** Patches from the unlabeled pool are masked complementarily across the two

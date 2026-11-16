@@ -13,6 +13,10 @@ jobs:
   cpu-checks:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -30,5 +34,6 @@ jobs:
           python tests/test_conditions.py
           python tests/test_corrupt.py
           python tests/test_data.py
+          python tests/test_model.py
       - name: Validate experiment plan
         run: python formal.py plan > /dev/null
