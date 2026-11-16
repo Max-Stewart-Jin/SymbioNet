@@ -17,3 +17,12 @@ fresh full GPU re-run. Previous original training outputs remain the basis of th
 
 The original experiment sensor data and third-party model source repositories are not redistributed. The provided
 fixed Geo-ΔSSM split indices were approved for sharing by a collaborator, as conveyed by the project author.
+
+## Publication-only improvements
+
+The repository additionally provides a Windows/Linux quick start, a non-training validation script, a
+SHA-256 manifest of the archived original files, and lightweight GitHub Actions checks. These additions
+were not part of the original experiment, and do not change the original model, training settings,
+random seeds, or numerical results. GitHub documentation may be improved independently of the original
+training code. If a source-file change is needed later, its impact on the paper and historical code hashes
+must be reviewed and disclosed rather than silently resetting the manifest.

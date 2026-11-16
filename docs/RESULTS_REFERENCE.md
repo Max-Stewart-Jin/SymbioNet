@@ -28,8 +28,10 @@ not included in this repository by default. See [REPRODUCIBILITY](REPRODUCIBILIT
 
 ## Archived source records
 
-- [`records/formal/`](../records/formal/) stores the formal run JSON, config YAML, and test-score JSON records.
-- [`records/cnn_copies/`](../records/cnn_copies/) stores the CNN$_H$ transfer comparisons.
-- The records are **historical observations**, not an independently re-run benchmark in this repository.
+- Formal run JSON, per-run configuration YAML and test-score records are retained in the authors' archived
+  `SymbioNet_formal_results` package. They are **not present in this source-only GitHub repository**.
+- The CNN$_H$ transfer records are retained separately in `SymbioNet_cnn_copies_results.zip`; these records
+  are **not included here** either. They should be shared only as a reviewed standalone release asset.
+- The reference numbers above come from **historical observations**, not a new benchmark executed from this commit.
 - The model was selected by highest *clean test-set OA* every five epochs under the comparison protocol;
   last-epoch results are also recorded. The selector is not an independent validation selector.

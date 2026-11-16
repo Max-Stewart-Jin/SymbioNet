@@ -20,6 +20,15 @@ lost pixels, occluded blocks, lost HSI bands, or a missing modality.
 The network used at test time is the fusion encoder (two GSFBs) with a linear classifier. It has 0.23 to 0.28 M
 parameters, depending on the dataset.
 
+## Getting started
+
+New to the repository? See **[Quick start](docs/QUICKSTART.md)** for Windows/Linux setup,
+source integrity checks, GPU detection, and an optional smoke test.
+
+No need to repeat the historical study merely to verify the repository layout: run
+`python tools/verify_release.py` and `python formal.py plan` after installing dependencies.
+These checks do **not** claim a full numerical reproduction.
+
 ## Requirements
 
 Python 3.9 to 3.12, PyTorch 2.1 or later, and the packages in `requirements.txt`:
@@ -62,6 +71,10 @@ pixels are used, never their labels. The test pixels are never drawn for trainin
 their spectra can appear inside the patches of neighbouring pixels.
 
 ## Reproducing the paper
+
+The authors' full historical results are retained separately and are not part of this initial source-only
+commit. See [reference values](docs/RESULTS_REFERENCE.md) and [source provenance](docs/SOURCE_PROVENANCE.md).
+Running the entire training protocol is for independent reproduction and is not required for reading this repository.
 
 All experiments are defined in `configs/formal.yaml` and run by `formal.py`:
 
