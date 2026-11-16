@@ -31,7 +31,7 @@ from pathlib import Path  # noqa: E402
 import numpy as np  # noqa: E402
 import torch  # noqa: E402
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from symbionet.corrupt import RANDOM, TESTS, band_stats, conditions, corrupt_scene  # noqa: E402
 from symbionet.data import PatchSampler, get_split, load_scene  # noqa: E402

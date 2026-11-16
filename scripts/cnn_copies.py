@@ -13,17 +13,17 @@ from zipfile import ZIP_DEFLATED, ZipFile
 import numpy as np
 import torch
 
-import compare
+from scripts import compare
 import formal
-from cnn_copies_eval import evaluate, summarize
-from cnn_copies_train import train
+from scripts.cnn_copies_eval import evaluate, summarize
+from scripts.cnn_copies_train import train
 from symbionet import external
 from symbionet.config import load_yaml
 from symbionet.data import split_path
 from symbionet.runs import Setting, _atomic_json, find_data_root, read_run, write_config, write_summary
 
 VERSION = 'ext_cnnh_copies'
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 FORMAL_SPLITS = {
     'houston2013': 'd852b79976f44b9574624a401912b7151fe889fff816eb41e7645caec30127ce',
     'muufl': '05b844ff93f77264dbb9209c198c9173c7b31fd6c59756b28c4dfeda31a6ffab',
@@ -81,7 +81,8 @@ def train_datasets(plan, output, datasets, seeds, ext, data_root, device, source
     torch.use_deterministic_algorithms(True, warn_only=True)
     device_name = torch.cuda.get_device_name(device) if device.type == 'cuda' else str(device)
     sources = formal.code_id(plan.root)
-    for name in ('cnn_copies.py', 'cnn_copies_train.py', 'cnn_copies_eval.py', 'symbionet/external.py',
+    for name in ('scripts/cnn_copies.py', 'scripts/cnn_copies_train.py', 'scripts/cnn_copies_eval.py',
+                 'symbionet/external.py',
                  'symbionet/testing.py', 'symbionet/conditions.py'):
         sources[name] = external.source_hash(plan.root / name)[:10]
     for dataset in datasets:

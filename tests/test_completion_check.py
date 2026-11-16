@@ -7,7 +7,7 @@ import torch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-import completion_check as CC  # noqa: E402
+from scripts import completion_check as CC  # noqa: E402
 from symbionet.model import make_masks  # noqa: E402
 
 W, N = 5, 25

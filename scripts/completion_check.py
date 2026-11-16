@@ -63,7 +63,7 @@ import numpy as np
 import torch
 from torch import nn
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 import formal  # noqa: E402
 from symbionet.engine import build_model  # noqa: E402

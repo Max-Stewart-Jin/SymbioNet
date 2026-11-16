@@ -1,10 +1,16 @@
 # Source provenance and reproducibility boundary
 
-The Python source code, tests, and configurations in this repository are byte-for-byte copies of the historical
-`code/SymbioNet/` snapshot inside `SymbioNet_交接_核心_1115c.zip`, which the project's handover record identifies
-as the original training source on the Legion workstation at `G:\SymbioNet`.
+The initial public repository preserved the historical `code/SymbioNet/` snapshot from
+`SymbioNet_交接_核心_1115c.zip`, identified by the handover record as the experiment source on the Legion workstation.
+The current release keeps `symbionet/` (model, data, engine), `configs/`, `formal.py`, and `train.py` unchanged.
+For a cleaner repository layout, six auxiliary launchers/helpers were moved to `scripts/`, with only
+project-root resolution, imports, and internal source-path references adjusted. No changes were made to their
+model equations, loss functions, experiment parameters, split indices, or random seeds. Existing auxiliary
+commands now use `python -m scripts.<name>` from the repository root.
 
-No algorithmic code, training setting, random seed, or experimental procedure was edited for publication.
+`docs/ORIGINAL_SNAPSHOT_SHA256.json` records the **historical** source file paths and hashes, while
+`docs/RELEASE_SOURCE_SHA256.json` lists the relocated files and verifies the **current** source checkout.
+The relocation is documented rather than misrepresented as byte-identical at the old paths.
 Five workstation-only diagnostic/orchestration scripts (`gate_check.py`, `go_rest.py`, `judge.py`, `robref.py`,
 `seed_merge.py`) are intentionally omitted because they are not needed to execute the published protocol.
 Repository documents (`README.md`, `.gitignore`, `docs/`, `CITATION.cff`, `splits/README.md`) were prepared separately
@@ -20,8 +26,8 @@ fixed Geo-ΔSSM split indices were approved for sharing by a collaborator, as co
 
 ## Publication-only improvements
 
-The repository additionally provides a Windows/Linux quick start, a non-training validation script, a
-SHA-256 manifest of the archived original files, and lightweight GitHub Actions checks. These additions
+The repository also provides a Windows/Linux quick start, non-training validation scripts, historical and
+current source SHA-256 manifests, and lightweight GitHub Actions checks. These additions
 were not part of the original experiment, and do not change the original model, training settings,
 random seeds, or numerical results. GitHub documentation may be improved independently of the original
 training code. If a source-file change is needed later, its impact on the paper and historical code hashes

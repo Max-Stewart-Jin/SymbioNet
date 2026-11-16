@@ -45,7 +45,7 @@ def _check_clean(scores, record, dataset, version, seed):
 def evaluate(plan, output_root, datasets, seeds, external_root, data_root, device, say=print):
     """Resume clean and corruption scoring in the candidate tree. The caller holds the experiment lock."""
     import torch
-    from compare import conditions
+    from scripts.compare import conditions
     from symbionet import external
     from symbionet.config import load_yaml
     from symbionet.runs import find_data_root

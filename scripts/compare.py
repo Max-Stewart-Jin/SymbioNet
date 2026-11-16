@@ -37,7 +37,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 import formal  # noqa: E402
 from formal import Plan, Tee, code_id, hm, keep_awake, pack, publish, same_settings, single_instance, thin  # noqa: E402

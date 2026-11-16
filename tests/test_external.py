@@ -21,7 +21,7 @@ import torch.nn as nn
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-import compare as C  # noqa: E402
+from scripts import compare as C  # noqa: E402
 import formal as F  # noqa: E402
 import symbionet.data as D  # noqa: E402
 import symbionet.testing as T  # noqa: E402

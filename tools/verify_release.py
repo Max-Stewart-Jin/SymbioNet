@@ -12,7 +12,7 @@ from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-MANIFEST = ROOT / 'docs' / 'ORIGINAL_SNAPSHOT_SHA256.json'
+MANIFEST = ROOT / 'docs' / 'RELEASE_SOURCE_SHA256.json'
 
 
 def main():
@@ -23,11 +23,11 @@ def main():
         if not path.is_file():
             errors.append(f'MISSING: {rel}')
         elif hashlib.sha256(path.read_bytes()).hexdigest() != digest:
-            errors.append(f'CHANGED SINCE ORIGINAL SNAPSHOT: {rel}')
+            errors.append(f'CHANGED SINCE VERIFIED RELEASE: {rel}')
     if errors:
         for error in errors:
             print('ERROR:', error)
-        print('Historical source comparison FAILED; review any intended changes against the paper.')
+        print('Release source verification FAILED; inspect code changes and the historical snapshot.')
         return 1
 
     # Compile sources in memory. Never writes __pycache__ files or executes training.
@@ -84,7 +84,7 @@ def main():
             return 1
         print(f'OK {name}: {len(train)} train / {len(test)} test; fixed split indices valid')
 
-    print(f'OK original snapshot: {len(expected)} files with matching SHA-256')
+    print(f'OK release source manifest: {len(expected)} files with matching SHA-256')
     print(f'OK Python syntax: {len(modules)} module(s) checked (no training)')
     print('PASS: source and split validation only; this is NOT a full GPU or paper reproduction.')
     return 0

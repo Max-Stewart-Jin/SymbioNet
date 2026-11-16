@@ -109,15 +109,15 @@ Place each repository in any subfolder of `external/`, preserving its source fil
 source SHA-256 values are in `symbionet/external.py`. Other source revisions may have different results.
 
 ```bash
-python compare.py check
-python compare.py all
+python -m scripts.compare check
+python -m scripts.compare all
 ```
 
 The external-model adapter shares the experimental split, normalization of the scene, corruption images, and
 base training protocol, but preserves the individual model's special preprocessing, loss, and prediction rule.
 It does **not** imply identical architectures or training objectives.
 
-The original `compare.py` command may wait for **1500 seconds of log inactivity** before acquiring the formal
+The relocated `scripts.compare` command may wait for **1500 seconds of log inactivity** before acquiring the formal
 experiment queue when used with its default wait mode. To run immediately only if no other experiment currently
 holds the queue, it also offers `--no-wait`. This safety delay does not change model training or evaluation.
 
@@ -127,10 +127,10 @@ Train and score the original CNN$_H$ baseline from section 3 first; the transfer
 splits, training settings, and CNN$_H$ source hashes match the reference run records before it begins.
 
 ```bash
-python compare.py all --methods cnnh
-python cnn_copies.py check
-python cnn_copies.py smoke      # quick sample, if desired
-python cnn_copies.py all        # 3 datasets × 5 seeds = 15 new trainings, 46 corruptions + clean per seed
+python -m scripts.compare all --methods cnnh
+python -m scripts.cnn_copies check
+python -m scripts.cnn_copies smoke      # quick sample, if desired
+python -m scripts.cnn_copies all        # 3 datasets × 5 seeds = 15 new trainings, 46 corruptions + clean per seed
 ```
 
 `cnn_copies.py all` also uses the original queue safety delay. The new CNN$_H$ runs start from random initialization

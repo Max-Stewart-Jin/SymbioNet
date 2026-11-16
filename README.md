@@ -198,7 +198,7 @@ used in the paper (other decoders, a pixel reconstruction loss, other stems and 
 `robustness.py` scores runs of `train.py` under the 46 corrupted conditions:
 
 ```bash
-python robustness.py results/demo/houston2013/default --names SymbioNet
+python -m scripts.robustness results/demo/houston2013/default --names SymbioNet
 ```
 
 ## Tests
@@ -213,6 +213,9 @@ python tests/test_formal.py       # the plan of the experiments
 ```
 
 ## Repository layout
+
+Auxiliary commands are documented in [scripts/README.md](scripts/README.md). `formal.py` and `train.py`
+remain at the repository root to preserve the main reproduction commands.
 
 ```
 symbionet/
@@ -230,7 +233,7 @@ splits/           training and test pixels
 masks/            the cloud-shadow zone map of Houston2013
 formal.py         the experiments of the paper
 train.py          training of any setting
-robustness.py     corruption tests for runs of train.py
+scripts/          auxiliary comparisons and robustness analysis
 tests/            unit tests
 ```
 
