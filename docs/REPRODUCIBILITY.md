@@ -13,8 +13,35 @@ python -m pip install -r requirements.txt
 
 Use Python 3.9–3.12 and a CUDA-enabled PyTorch build for practical training times. The original runs used an
 NVIDIA RTX 4060 laptop GPU. Put the original MATLAB data in `dataset/` with the exact layout described in the
-main README. The raw scenes are not redistributed here; obtain them from the respective data providers under
-their terms.
+main README, including [the data acquisition links](../README.md#data). The raw scenes are not redistributed here;
+obtain them from the respective data providers under their terms.
+
+### Recorded experiment environment (historical reference)
+
+| Component | Version / hardware | Evidence |
+|---|---|---|
+| Python | 3.10.20 | Workstation `hsi` environment notes |
+| PyTorch | 2.1.0+cu118 (CUDA 11.8 build) | Original per-run JSON metadata (430 records in the retained formal result archive) |
+| NumPy | 1.26.4 | Workstation `hsi` environment notes |
+| SciPy | 1.11.4 | Workstation `hsi` environment notes |
+| GPU | NVIDIA GeForce RTX 4060 Laptop GPU, 8 GB | Original run metadata and project notes |
+
+For researchers who want to approximate that original **Windows/Linux CUDA 11.8** environment, use Python 3.10
+and install the project dependencies, then select the archived numerical-library versions:
+
+```bash
+python -m pip install -r requirements.txt
+python -m pip install torch==2.1.0 --index-url https://download.pytorch.org/whl/cu118
+python -m pip install numpy==1.26.4 scipy==1.11.4
+python -c "import sys, torch, numpy, scipy; print(sys.version, torch.__version__, torch.version.cuda, numpy.__version__, scipy.__version__); print('GPU:', torch.cuda.is_available())"
+```
+
+See the [official PyTorch previous-version instructions](https://pytorch.org/get-started/previous-versions/)
+for the wheel and supported platform. The above setup is **optional**, not required for the no-training
+integrity check, and has not been independently full-GPU-retested from this release. The historical archives
+do **not** include a complete `pip freeze`/lockfile (for example, exact PyYAML and h5py versions are not
+confirmed); `requirements.txt` intentionally keeps compatibility minimums. No claim of exact numerical
+reproduction across machines is implied.
 
 The `.npz` files in `splits/` contain **indices**, not hyperspectral or LiDAR sensor arrays.
 The paper uses the Geo-ΔSSM fixed splits. **The three `*_geodeltassm.npz` index files are included**
