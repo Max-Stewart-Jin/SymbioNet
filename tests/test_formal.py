@@ -165,10 +165,12 @@ def test_finished_runs_and_estimates():
         assert F.minutes(plan, 'houston2013', 'copies_m2c', m) == 9.0          # the same kind on the same dataset
         assert F.minutes(plan, 'muufl', 'copies', m) == 7.5                    # nothing measured: the table
         assert F.measured_minutes(plan, 'stage1', 'RTX') == {}                 # runs of another machine do not count
+        # Synthetic reference scores: exercise the optional screening check without publishing measured OA.
+        plan.raw['screening'] = {'houston2013': {'full': {0: 90.0, 1: 91.0}}}
         text = F.summary(plan, 'stage1')
         assert ' 2/5 ' in text and '94.50 ± 0.50' in text and '0:94.00 1:95.00' in text
         assert '2 of 135 runs finished' in text
-        assert 'check against the screening runs, houston2013 full: 0:94.00 1:95.00 here, 0:94.06 1:94.60 there '\
+        assert 'check against the screening runs, houston2013 full: 0:94.00 1:95.00 here, 0:90.00 1:91.00 there '\
                '-> DIFFERENT' in text
     finally:
         shutil.rmtree(tmp)

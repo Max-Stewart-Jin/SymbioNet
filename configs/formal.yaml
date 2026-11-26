@@ -204,9 +204,3 @@ minutes:
   base: {houston2013: 3.4, muufl: 6.4, trento: 4.3}
   copies: {houston2013: 4.5, muufl: 7.5, trento: 5.4}
   m2c: {houston2013: 8.9, muufl: 9.0, trento: 10.4}
-
-# Development check, to be removed with the release: the best OA of the screening runs with the same settings and
-# seeds (training is deterministic on one machine, so the formal runs of these seeds should repeat them).
-screening:
-  houston2013: {full: {0: 94.06, 1: 94.60, 2: 94.12}}
-  muufl: {full: {0: 91.82, 1: 91.35, 2: 91.47}}

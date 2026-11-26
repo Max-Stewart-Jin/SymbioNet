@@ -90,8 +90,8 @@ their spectra can appear inside the patches of neighbouring pixels.
 
 ## Reproducing the paper
 
-The authors' full historical results are retained separately and are not part of this initial source-only
-commit. See [reference values](docs/RESULTS_REFERENCE.md) and [source provenance](docs/SOURCE_PROVENANCE.md).
+This repository contains source code and reproducibility assets only. Experimental results, logs and
+trained checkpoints are retained separately by the authors. See [source provenance](docs/SOURCE_PROVENANCE.md).
 Running the entire training protocol is for independent reproduction and is not required for reading this repository.
 
 All experiments are defined in `configs/formal.yaml` and run by `formal.py`:
