@@ -11,5 +11,4 @@ The primary paper protocol remains `python formal.py ...` and single-model train
 | `completion_check` | Cross-modal completion diagnostic | `python -m scripts.completion_check --help` |
 | `cnn_copies_train`, `cnn_copies_eval` | Support modules for CNN_H transfer | Imported by `cnn_copies` |
 
-This is a **source-layout change**, not a new training recipe. See
-`docs/SOURCE_PROVENANCE.md` for version tracking and `docs/REPRODUCIBILITY.md` for the full protocol.
+See [Experiment guide](../docs/REPRODUCIBILITY.md) for the full protocol.
