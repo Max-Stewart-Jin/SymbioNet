@@ -1,5 +1,5 @@
 """Settings. A run is configured by configs/default.yaml, then configs/datasets.yaml (per dataset), then overrides
-of the form section.key=value (the command line of train.py, the versions of configs/formal.yaml)."""
+of the form section.key=value (the command line of train.py)."""
 import copy
 from pathlib import Path
 
@@ -24,6 +24,15 @@ def merge(base: dict, over: dict) -> dict:
 def set_key(cfg: dict, dotted: str, value):
     """cfg['a']['b'] = value for 'a.b'; only keys of the default config are accepted (catches typos)."""
     *path, last = dotted.split('.')
+    if path == ['model']:
+        aliases = {'p_spec': 'spectral_probability', 'spec_max': 'spectral_max'}
+        options = cfg.get('model', {})
+        if last not in options and aliases.get(last) in options:
+            last = aliases[last]
+        elif last not in options:
+            reverse = {v: k for k, v in aliases.items()}
+            if reverse.get(last) in options:
+                last = reverse[last]
     node = cfg
     for k in path:
         if k not in node or not isinstance(node[k], dict):
@@ -35,7 +44,7 @@ def set_key(cfg: dict, dotted: str, value):
 
 
 def parse_value(text: str):
-    """A command-line value read as YAML (9, 0.5, true, null, mamba); numbers such as 1e-3 that YAML 1.1 keeps as
+    """A command-line value read as YAML (9, 0.5, true, null); numbers such as 1e-3 that YAML 1.1 keeps as
     strings are converted too."""
     value = yaml.safe_load(text)
     if isinstance(value, str):

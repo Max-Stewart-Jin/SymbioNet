@@ -1,15 +1,11 @@
-"""Train and evaluate the SymbioNet base network or SymbioNet on Trento, Houston2013 and MUUFL.
+"""Train SymbioNet with a dataset-specific configuration.
 
 Examples:
-  python train.py --dataset trento --smoke                     # 2 epochs on part of the test set: checks the setup
-  python train.py --dataset trento --exp step1 --runs 3 --sweep data.patch=9,11 data.pca=0,30
-  python train.py --dataset trento houston2013 muufl --exp base --runs 5
+  python train.py --dataset trento --smoke --device cpu
+  python train.py --dataset houston2013 --exp symbionet --runs 1
+  python train.py --dataset muufl --runs 1 --set training.epochs=500
 
-Settings come from configs/default.yaml, then configs/datasets.yaml (per dataset), then --set (e.g.
---set training.epochs=300 model.decoder=mamba); --sweep runs every combination of the listed values. Every run is
-saved to results/<exp>/<dataset>/<setting>/ (run<k>.json with all scores and curves, the weights of the best and
-of the last epoch in ckpt/, and the resolved config.yaml; see symbionet/runs.py). A short summary of all settings is
-printed at the end and appended to results/<exp>/summary.txt. The experiments of the paper are run by formal.py.
+Outputs are written locally under results/<exp>/<dataset>/<setting>/.
 """
 import os
 

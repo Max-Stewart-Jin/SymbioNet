@@ -6,8 +6,6 @@ images; a condition with several draws is scored on each draw and averaged per m
 one dataset in one JSON file, by model, condition and seed, and is written after every condition: a test stage can
 be stopped at any time, and only what is missing is computed the next time.
 
-Zones (a map that gives every pixel a zone number, e.g. the cloud shadow of Houston2013) are scored on the clean
-scene: zone_scores() gives the accuracy inside and outside a zone from the predictions of one model.
 """
 from __future__ import annotations
 
@@ -29,7 +27,6 @@ from .metrics import confusion, scores
 KEEP = ('OA', 'AA', 'Kappa', 'F1')
 CLEAN = 'clean'
 SHARED = ('hsi_norm', 'lidar_norm', 'pca', 'split', 'split_ratio', 'split_seed', 'split_file', 'split_dir')
-ZONES = {'shadow': 2, 'uncertain': 1, 'outside': 0}                 # the zone numbers of a zone map (-1: no data)
 
 
 @dataclass
@@ -121,63 +118,9 @@ class Bench:
         return out
 
 
-# ------------------------------------------------------------------------------------------------------ zones
-def load_zones(path, bench: Bench) -> np.ndarray:
-    """The zone of every test pixel of the bench, from a zone map (.npz with `zone` (H, W); optional `split`,
-    `test_counts` and `train_counts` of the split it was made for, which are then checked)."""
-    z = np.load(path)
-    zone_map = z['zone']
-    if zone_map.shape != bench.scene.shape:
-        raise ValueError('%s is %s, the image is %s' % (path, zone_map.shape, bench.scene.shape))
-    flat = zone_map.ravel()
-    if 'test_counts' in z.files and str(z['split']) == Path(bench.split['path']).name:
-        full, train = flat[bench.split['test']], flat[bench.split['train']]
-        here = ([int((full == v).sum()) for v in (0, 1, 2)], [int((train == v).sum()) for v in (0, 1, 2)])
-        there = (z['test_counts'].tolist(), z['train_counts'].tolist())
-        if here != there:
-            raise ValueError('%s does not fit this image or split: test / training pixels per zone %s here, %s when '
-                             'the zones were made' % (path, here, there))
-    zone = flat[bench.test]
-    if (zone < 0).any():
-        raise ValueError('%d test pixels lie on no-data pixels of %s' % ((zone < 0).sum(), path))
-    return zone
-
-
-def zone_scores(pred: np.ndarray, y: np.ndarray, zone: np.ndarray, n_classes: int) -> dict:
-    """Accuracy (%) of one model inside and outside the shadow zone; pred, y, zone: one value per test pixel.
-      all       every test pixel
-      shadow    the test pixels of the zone core
-      outside   the test pixels outside
-      outside*  the outside pixels of the classes that occur in the core, weighted with the class shares of the
-                core: the accuracy of the same class mix without the shadow
-      cost      outside* - shadow over those classes (positive: the zone is harder)"""
-    ok = pred == y
-    s = {'all': 100 * float(ok.mean())}
-    for name, z in ZONES.items():
-        s[name] = 100 * float(ok[zone == z].mean()) if (zone == z).any() else float('nan')
-    inside, outside = zone == ZONES['shadow'], zone == ZONES['outside']
-    n_in = np.bincount(y[inside], minlength=n_classes)
-    acc_in = np.full(n_classes, np.nan)
-    acc_out = np.full(n_classes, np.nan)
-    for k in range(n_classes):
-        if n_in[k]:
-            acc_in[k] = 100 * ok[inside & (y == k)].mean()
-        if (outside & (y == k)).any():
-            acc_out[k] = 100 * ok[outside & (y == k)].mean()
-    use = (n_in > 0) & ~np.isnan(acc_out)                 # classes of the core that also occur outside
-    if use.any():
-        s['outside*'] = float((n_in[use] * acc_out[use]).sum() / n_in[use].sum())
-        s['cost'] = s['outside*'] - float((n_in[use] * acc_in[use]).sum() / n_in[use].sum())
-    else:
-        s['outside*'] = s['cost'] = float('nan')
-    s['class_in'] = [None if np.isnan(v) else float(v) for v in acc_in]
-    s['class_out'] = [None if np.isnan(v) else float(v) for v in acc_out]
-    return s
-
-
 # ------------------------------------------------------------------------------------------------------ store
 class Store:
-    """The test scores of one dataset: scores[key][label][seed] = {'OA': ..., ...}, zones[key][seed] = {...}."""
+    """The test scores of one dataset: scores[key][label][seed] = {'OA': ..., ...}."""
 
     def __init__(self, path, header: dict):
         self.path = Path(path)
@@ -189,7 +132,7 @@ class Store:
                 raise ValueError('%s holds scores of another test setting (%s differ); move it away to start again'
                                  % (self.path, ', '.join(diff)))
         else:
-            self.data = dict(header, created=time.strftime('%Y-%m-%d %H:%M'), models={}, scores={}, zones={})
+            self.data = dict(header, created=time.strftime('%Y-%m-%d %H:%M'), models={}, scores={})
 
     @classmethod
     def read(cls, path):
@@ -212,12 +155,6 @@ class Store:
 
     def put(self, key: str, label: str, seed: int, value: dict):
         self.data['scores'].setdefault(key, {}).setdefault(label, {})[str(seed)] = value
-
-    def zones(self, key: str) -> dict:
-        return {int(s): v for s, v in self.data.get('zones', {}).get(key, {}).items()}
-
-    def put_zones(self, key: str, seed: int, value: dict):
-        self.data.setdefault('zones', {}).setdefault(key, {})[str(seed)] = value
 
     def describe(self, key: str, **info):
         self.data['models'].setdefault(key, {}).update(info)

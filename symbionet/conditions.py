@@ -1,8 +1,7 @@
 """Test conditions beyond the corruptions of corrupt.py, and the named suites of conditions of the test stages.
 
 corrupt.py defines the five corruptions behind the 46 conditions of the paper (noise, lost pixels, occluded blocks,
-lost HSI bands, a missing modality). It is left as it is: training reads the band means through it, so its hash is
-part of every training record. This module adds two kinds of condition on top of it:
+lost HSI bands, a missing modality). This module adds two kinds of condition:
 
     Shift    the LiDAR raster is moved by `level` pixels against the HSI and the labels (a registration error). The
              four directions (up, down, left, right) are the four draws of the condition, so its score is their
@@ -13,7 +12,7 @@ part of every training record. This module adds two kinds of condition on top of
              compared on the same losses.
 
 Every condition has a label (the key of its scores), a test, a target and a level. apply() makes the test scene of
-any condition; suite() names the lists that formal.py runs:
+any condition; suite() names the evaluation condition lists:
 
     corruptions   the 46 conditions of the paper
     shift         the LiDAR shifted by 1, 2 and 3 pixels

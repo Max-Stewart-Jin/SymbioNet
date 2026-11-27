@@ -1,14 +1,15 @@
-# Per-dataset settings (they override configs/default.yaml). Starting values: the patch and batch sizes selected
-# for Geo-DeltaSSM on the same 1 % splits; ours are tuned in the parameter study and recorded here.
-
-trento:
-  data: {patch: 9}
-  training: {batch_size: 32}
-
 houston2013:
-  data: {patch: 7}
-  training: {batch_size: 32}
-
+  data:
+    patch: 11
+  training:
+    batch_size: 32
 muufl:
-  data: {patch: 5}
-  training: {batch_size: 128}
+  data:
+    patch: 9
+  training:
+    batch_size: 128
+trento:
+  data:
+    patch: 9
+  training:
+    batch_size: 32

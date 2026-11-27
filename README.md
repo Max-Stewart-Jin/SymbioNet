@@ -2,73 +2,70 @@
 
 **Symbiotic Cross-Modal Completion Network for Hyperspectral and LiDAR Joint Classification**
 
-SymbioNet combines a gated symmetric fusion encoder, masked labeled counterparts, and masked mutual completion (M2C) on unlabeled patches for HSI–LiDAR classification. The completion branch is used only during training.
+SymbioNet combines gated symmetric fusion, masked labeled counterparts, and spatial-spectral mutual completion (M²C) for HSI–LiDAR classification. The M²C branch is used only during training.
 
 ## Installation
 
-Python 3.9–3.12 and PyTorch 2.1 or later are required. A CUDA-enabled PyTorch build is recommended for training.
+Use Python 3.9–3.12 and PyTorch 2.1 or later. For GPU training, install a compatible [CUDA-enabled PyTorch build](https://pytorch.org/get-started/locally/).
 
 ```bash
 pip install -r requirements.txt
-python formal.py plan
 ```
-
-See [Quick start](docs/QUICKSTART.md) for environment setup and a smoke test.
 
 ## Data
 
-Obtain the datasets from their providers under the applicable terms:
+Obtain [Houston2013](https://machinelearning.ee.uh.edu/2013-ieee-grss-data-fusion-contest/), [MUUFL](https://github.com/GatorSense/MUUFLGulfport), and [Trento](https://rslab.disi.unitn.it/) from their respective providers under the applicable terms. The paired Trento benchmark may require contacting its provider.
 
-- Houston2013: [IEEE GRSS Data Fusion Contest](https://www.grss-ieee.org/community/technical-committees/2013-ieee-grss-data-fusion-contest/) and [University of Houston](https://machinelearning.ee.uh.edu/2013-ieee-grss-data-fusion-contest/).
-- MUUFL: [GatorSense MUUFL Gulfport](https://github.com/GatorSense/MUUFLGulfport).
-- Trento: [University of Trento Remote Sensing Laboratory](https://rslab.disi.unitn.it/). Contact the provider for the paired benchmark; no official direct download is specified here.
+Place the MATLAB files under `dataset/`, or specify `--data-root`.
 
-Place the MATLAB files in the following layout, or specify `--data-root`.
-
-```
+```text
 dataset/
   Houston13/  Houston.mat  LiDAR.mat  Houston_GT.mat
   MUUFL/      MUUFL_dataset.mat
   Trento/     HSI_Trento.mat  Lidar_Trento.mat  GT_Trento.mat
 ```
 
-| Dataset | MATLAB variables | Patch size (formal protocol) |
+| Dataset | MATLAB variables | Patch size |
 |---|---|---|
-| Houston2013 | img, dsm, Houston_gt | 11 × 11 |
-| MUUFL | HSI, LiDAR, Label | 9 × 9 |
-| Trento | HSI_Trento, Lidar_Trento, GT_Trento | 9 × 9 |
+| Houston2013 | `img`, `dsm`, `Houston_gt` | 11 × 11 |
+| MUUFL | `HSI`, `LiDAR`, `Label` | 9 × 9 |
+| Trento | `HSI_Trento`, `Lidar_Trento`, `GT_Trento` | 9 × 9 |
 
-The fixed train/test indices used by the formal protocol are in [splits/](splits/README.md). Raw sensor scenes are not included.
+The fixed split indices in `splits/` are derived from the Geo-ΔSSM benchmark splits; please cite the Geo-ΔSSM work when using them. Raw sensor data are not included.
 
-## Training and evaluation
-
-The formal experiment settings are in `configs/formal.yaml`.
+## Training
 
 ```bash
-python formal.py run stage1
-python formal.py test tests1
-python formal.py summary stage1
+python train.py --dataset houston2013 --exp symbionet --runs 1
 ```
 
-For the remaining experiments, individual runs, and external comparisons, see [Experiment guide](docs/REPRODUCIBILITY.md).
+Use `--dataset muufl` or `--dataset trento` for the other scenes. The Full configuration is defined in `configs/default.yaml` and `configs/datasets.yaml`. Spectral masking is applied only to spatially visible HSI inputs in the unlabeled M²C student, with `spectral_probability=0.5` and a conditional masking rate sampled uniformly from 0 to `spectral_max=0.3`.
 
-The code saves generated results and checkpoints locally under `results/`. They are not distributed in this repository.
+Use `--smoke` for a short setup check, `--runs` and `--seed` to control repeated runs, and `--device cpu` for CPU execution. By default, the Full model trains for 500 epochs. The highest clean test OA checkpoint (evaluated every five epochs) and the final-epoch checkpoint are saved locally in `results/<exp>/<dataset>/default/`.
 
-## Repository layout
+## Evaluation
 
-| Path | Purpose |
+```bash
+python evaluate.py results/symbionet/houston2013/default
+```
+
+The evaluator reports OA, AA, Kappa and F1 on clean inputs and under 46 corruption conditions. Corrupted OA is the mean OA over the 46 conditions, with multiple random draws averaged within each condition. For repeated runs, report the mean and population standard deviation across seeds. Use `--weights last` for the final checkpoint or `--suite clean shift interp` for supplementary evaluations. Evaluation outputs are saved locally under `robustness/`.
+
+## Ablation variants
+
+The following labels describe the variants presented in Table III of the manuscript.
+
+| Model | Description |
 |---|---|
-| `symbionet/` | Model, data loading, training, metrics and evaluation |
-| `configs/` | Model and experiment settings |
-| `formal.py`, `train.py` | Experiment runner and individual training |
-| `scripts/` | Robustness evaluation and comparison utilities |
-| `splits/`, `masks/` | Fixed split indices and evaluation masks |
-| `tests/` | Unit tests |
+| (a) | Base network |
+| (b) | M²C only |
+| (c) | Masked labeled counterparts |
+| (d) | Whole-modality masking of labeled counterparts |
+| (e) | Masked labeled counterparts and M²C, without the gate |
+| (f) | Masked labeled counterparts and the gate, without M²C |
+| (g) | SymbioNet with same-position spatial masking |
+| Full | SymbioNet with complementary spatial masking |
 
-## Citation and license
+## License and citation
 
-See [CITATION.cff](CITATION.cff) for citation information. The software is released under the [MIT License](LICENSE).
-
-We acknowledge the Geo-ΔSSM authors for the fixed split indices and the respective Houston2013, MUUFL and Trento data providers. See [split attribution](splits/README.md).
-
-<!-- Transmission ID: NC-2077 | The signal is still alive. -->
+The software is released under the [MIT License](LICENSE). Third-party data remain subject to their respective terms. Please cite the accompanying SymbioNet manuscript when using this code. Bibliographic details will be added upon publication.

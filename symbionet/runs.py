@@ -7,8 +7,7 @@
     ckpt/run<k>_last.pt   weights after the last epoch
     summary.json          mean and standard deviation over the runs
 
-train.py (any setting, from the command line) and formal.py (the experiments of the paper) both train through
-this module, so their results have the same form and robustness.py reads either.
+train.py saves records using this module; evaluate.py reads them.
 """
 import json
 import os

@@ -1,24 +1,42 @@
-# Original data, third-party model repositories, checkpoints and generated records
+# Local datasets, outputs, checkpoints and private utilities
 /dataset/
 /external/
 /results/
 /robustness/
+/experiments/
+/_backup*/
+audit_*.py
+verify_symbionet_public*.py
 *.pt
 *.pth
 *.ckpt
-*.lock
-*.tmp
+*.safetensors
+*.pkl
+*.pickle
+*.mat
+*.npy
+*.npz
+!/splits/houston2013.npz
+!/splits/muufl.npz
+!/splits/trento.npz
+*.csv
+*.jsonl
 *.zip
+*.7z
+*.tar
+*.tar.gz
 *.log
+*.tmp
+*.lock
 
-# Python / local environments
+# Python and local development environments
 __pycache__/
 *.py[cod]
 .pytest_cache/
 .venv/
 venv/
-
-# Editor / operating system files
+.env
+.env.*
 .DS_Store
-.idea/
 .vscode/
+.idea/

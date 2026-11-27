@@ -191,7 +191,7 @@ def split_path(folder, dataset: str, kind: str = 'geo', ratio: float = 0.01, see
     """'geo': the split of Geo-DeltaSSM (its training pixels, recovered from its patch files; shipped in splits/);
     'random': ceil(ratio * n_class) training pixels per class drawn with `seed`."""
     if kind == 'geo':
-        return Path(folder) / ('%s_geodeltassm.npz' % dataset)
+        return Path(folder) / ('%s.npz' % dataset)
     if kind == 'random':
         return Path(folder) / ('%s_ratio%s_seed%d.npz' % (dataset, ('%g' % ratio).replace('.', 'p'), seed))
     raise ValueError('split must be one of %s' % (SPLITS,))

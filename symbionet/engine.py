@@ -1,11 +1,4 @@
-"""One training run on a fixed split: the base network (decoder None) or SymbioNet (with the training branch).
-
-Recipe: Adam (or AdamW) with weight decay, cosine annealing of the learning rate over the epochs, cross-entropy with
-optional label smoothing and class weights. SymbioNet adds, at every step, the training-branch losses of `pool_batch`
-patches drawn from the unlabeled pool. The test pixels are evaluated every `eval.every` epochs; the run reports the
-epoch with the best test OA (as is customary for these benchmarks) and the last epoch.
-All random draws (batch order, augmentation, pool patches, masks) come from CPU generators seeded by the run seed.
-"""
+"""Single-run training and classification evaluation for SymbioNet."""
 import random
 import time
 
@@ -98,7 +91,8 @@ def train_run(cfg: dict, scene, sampler: PatchSampler, split: dict, pool: np.nda
     pool_idx = torch.from_numpy(pool).to(device) if model.branch else None
     g_data = torch.Generator().manual_seed(seed)                 # batch order, augmentation, pool draws
     g_mask = torch.Generator().manual_seed(seed + 1_000_003)     # masks of the training branch
-    g_gate = torch.Generator().manual_seed(seed + 2_000_003)     # masked views the pre-gate acts on (pre_gate_p < 1)
+    g_gate = torch.Generator().manual_seed(seed + 2_000_003)     # masked views the pre-gate acts on
+    g_spec = torch.Generator().manual_seed(seed + 3_000_003)     # independent HSI spectral masking
 
     best = dict(oa=-1.0, epoch=0, state=None)
     history, start = [], time.time()
@@ -120,18 +114,10 @@ def train_run(cfg: dict, scene, sampler: PatchSampler, split: dict, pool: np.nda
             if model.branch:
                 pidx = pool_idx[torch.randint(len(pool_idx), (t['pool_batch'],), generator=g_data).to(device)]
                 o = model.pool_losses(*sampler(pidx, cfg['data']['augment'], g_data), g=g_mask,
-                                      on=model.draw_gate(t['pool_batch'], g_gate, device))
+                                      on=model.draw_gate(t['pool_batch'], g_gate, device), spec_g=g_spec)
                 loss = loss + mc['lam'] * o['rec']
-                if 'feat' in o:
-                    loss = loss + mc['beta'] * o['feat']
-                if 'cons' in o:
-                    loss = loss + mc['gamma'] * o['cons']
-                if 'gate' in o:
-                    loss = loss + o['gate']
-                if 'pre_gate' in o:
-                    loss = loss + o['pre_gate']
-                parts.update({k: o[k].detach() for k in ('rec', 'mse_h', 'mse_l', 'feat', 'cons', 'gate', 'pre_gate')
-                              if k in o})
+                loss = loss + mc['beta'] * o['feat']
+                parts.update({k: o[k].detach() for k in ('rec', 'mse_h', 'mse_l', 'feat')})
             opt.zero_grad(set_to_none=True)
             loss.backward()
             opt.step()
@@ -147,7 +133,7 @@ def train_run(cfg: dict, scene, sampler: PatchSampler, split: dict, pool: np.nda
                 state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
                 best = dict(oa=oa, epoch=epoch, state=state)
             if epoch % cfg['print_every'] == 0 or epoch == t['epochs']:
-                extra = ''.join('  %s %.4f' % (k, row[k]) for k in ('ce_m', 'rec', 'feat', 'cons', 'gate', 'pre_gate')
+                extra = ''.join('  %s %.4f' % (k, row[k]) for k in ('ce_m', 'rec', 'feat')
                                 if k in row)
                 log('    epoch %4d  ce %.4f%s  test OA %6.2f  (best %6.2f at epoch %d)'
                     % (epoch, row['ce'], extra, oa, best['oa'], best['epoch']))
